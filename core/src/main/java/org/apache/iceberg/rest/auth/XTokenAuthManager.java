@@ -16,36 +16,29 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.iceberg.rest.auth.token;
+package org.apache.iceberg.rest.auth;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.Map;
+import org.apache.iceberg.rest.RESTClient;
 
-public class GenerateHumanTokenReq {
-  @JsonProperty("user_name")
-  private String username;
+/** An authentication manager for REST services that use an X-Token request header. */
+class XTokenAuthManager implements AuthManager {
+  private final String catalogName;
 
-  private String value;
-
-  public GenerateHumanTokenReq() {}
-
-  public GenerateHumanTokenReq(String username, String value) {
-    this.username = username;
-    this.value = value;
+  public XTokenAuthManager(String catalogName) {
+    this.catalogName = catalogName;
   }
 
-  public String getUsername() {
-    return username;
+  @Override
+  public AuthSession initSession(RESTClient initClient, Map<String, String> properties) {
+    return new XTokenAuthSession(XTokenProvider.create(catalogName, properties));
   }
 
-  public void setUsername(String username) {
-    this.username = username;
+  @Override
+  public AuthSession catalogSession(RESTClient sharedClient, Map<String, String> properties) {
+    return new XTokenAuthSession(XTokenProvider.create(catalogName, properties));
   }
 
-  public String getValue() {
-    return value;
-  }
-
-  public void setValue(String value) {
-    this.value = value;
-  }
+  @Override
+  public void close() {}
 }

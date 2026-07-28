@@ -22,6 +22,7 @@ import java.util.Map;
 import org.apache.iceberg.catalog.Namespace;
 import org.apache.iceberg.catalog.TableIdentifier;
 import org.apache.iceberg.relocated.com.google.common.base.Joiner;
+import org.apache.iceberg.relocated.com.google.common.base.Preconditions;
 import org.apache.iceberg.util.PropertyUtil;
 
 public class ResourcePaths {
@@ -59,7 +60,27 @@ public class ResourcePaths {
         PropertyUtil.propertyAsString(
             properties,
             RESTCatalogProperties.NAMESPACE_SEPARATOR,
-            RESTCatalogProperties.NAMESPACE_SEPARATOR_DEFAULT));
+            RESTCatalogProperties.NAMESPACE_SEPARATOR_DEFAULT),
+        null);
+  }
+
+  static ResourcePaths forCatalogProperties(
+      Map<String, String> properties, String catalogName, boolean catalogPrefixEnabled) {
+    String catalogPrefix =
+        catalogPrefixEnabled
+            ? PropertyUtil.propertyAsString(
+                properties, RESTCatalogProperties.CATALOG_NAMESPACE_PREFIX, catalogName)
+            : null;
+    Preconditions.checkArgument(
+        catalogPrefix == null || !catalogPrefix.isEmpty(),
+        "Invalid REST catalog namespace prefix: empty");
+    return new ResourcePaths(
+        properties.get(PREFIX),
+        PropertyUtil.propertyAsString(
+            properties,
+            RESTCatalogProperties.NAMESPACE_SEPARATOR,
+            RESTCatalogProperties.NAMESPACE_SEPARATOR_DEFAULT),
+        catalogPrefix);
   }
 
   public static String config() {
@@ -72,6 +93,7 @@ public class ResourcePaths {
 
   private final String prefix;
   private final String namespaceSeparator;
+  private final String catalogPrefix;
 
   /**
    * @deprecated since 1.11.0, will be made private in 1.12.0; use {@link
@@ -79,12 +101,13 @@ public class ResourcePaths {
    */
   @Deprecated
   public ResourcePaths(String prefix) {
-    this(prefix, RESTUtil.NAMESPACE_SEPARATOR_URLENCODED_UTF_8);
+    this(prefix, RESTUtil.NAMESPACE_SEPARATOR_URLENCODED_UTF_8, null);
   }
 
-  private ResourcePaths(String prefix, String namespaceSeparator) {
+  private ResourcePaths(String prefix, String namespaceSeparator, String catalogPrefix) {
     this.prefix = prefix;
     this.namespaceSeparator = namespaceSeparator;
+    this.catalogPrefix = catalogPrefix;
   }
 
   public String namespaces() {
@@ -204,6 +227,13 @@ public class ResourcePaths {
   }
 
   private String pathEncode(Namespace ns) {
-    return RESTUtil.encodeNamespace(ns, namespaceSeparator);
+    String encodedNamespace = RESTUtil.encodeNamespace(ns, namespaceSeparator);
+    if (catalogPrefix == null) {
+      return encodedNamespace;
+    }
+
+    return RESTUtil.encodeString(catalogPrefix)
+        + RESTCatalogProperties.CATALOG_NAMESPACE_PREFIX_SEPARATOR
+        + encodedNamespace;
   }
 }

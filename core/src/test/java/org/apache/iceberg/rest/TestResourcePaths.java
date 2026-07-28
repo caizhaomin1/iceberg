@@ -66,6 +66,36 @@ public class TestResourcePaths {
     assertThat(withoutPrefix.namespace(ns)).isEqualTo("v1/namespaces/n%1Fs");
   }
 
+  @Test
+  public void catalogNamespacePrefixDisabledByDefault() {
+    ResourcePaths paths =
+        ResourcePaths.forCatalogProperties(ImmutableMap.of(), "spark_catalog_name", false);
+
+    assertThat(paths.table(TableIdentifier.of("ns", "table")))
+        .isEqualTo("v1/namespaces/ns/tables/table");
+  }
+
+  @Test
+  public void catalogNamespacePrefixUsesLiteralSeparator() {
+    ResourcePaths paths =
+        ResourcePaths.forCatalogProperties(ImmutableMap.of(), "spark_catalog_name", true);
+
+    assertThat(paths.table(TableIdentifier.of("first", "second", "table")))
+        .isEqualTo("v1/namespaces/spark_catalog_name0x1Ffirst%1Fsecond/tables/table");
+  }
+
+  @Test
+  public void catalogNamespacePrefixCanBeOverridden() {
+    ResourcePaths paths =
+        ResourcePaths.forCatalogProperties(
+            ImmutableMap.of(RESTCatalogProperties.CATALOG_NAMESPACE_PREFIX, "remote catalog"),
+            "spark_catalog_name",
+            true);
+
+    assertThat(paths.table(TableIdentifier.of("ns", "table")))
+        .isEqualTo("v1/namespaces/remote+catalog0x1Fns/tables/table");
+  }
+
   @ParameterizedTest
   @ValueSource(strings = {"%1F", "%2D", "%2E"})
   public void testNamespaceWithMultipartNamespace(String namespaceSeparator) {
