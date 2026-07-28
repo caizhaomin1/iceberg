@@ -46,6 +46,12 @@ public final class RESTCatalogProperties {
   public static final String NAMESPACE_SEPARATOR_DEFAULT =
       RESTUtil.NAMESPACE_SEPARATOR_URLENCODED_UTF_8;
 
+  public static final String CATALOG_NAMESPACE_PREFIX_ENABLED =
+      "rest.catalog-namespace-prefix-enabled";
+  public static final boolean CATALOG_NAMESPACE_PREFIX_ENABLED_DEFAULT = false;
+  public static final String CATALOG_NAMESPACE_PREFIX = "rest.catalog-namespace-prefix";
+  public static final String CATALOG_NAMESPACE_PREFIX_SEPARATOR = "0x1F";
+
   // Configure scan planning mode
   // Can be set by server in LoadTableResponse.config() for table-level override
   public static final String SCAN_PLANNING_MODE = "scan-planning-mode";

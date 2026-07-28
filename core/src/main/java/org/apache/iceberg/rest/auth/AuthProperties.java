@@ -44,6 +44,16 @@ public final class AuthProperties {
   public static final String BASIC_USERNAME = "rest.auth.basic.username";
   public static final String BASIC_PASSWORD = "rest.auth.basic.password";
 
+  public static final String X_TOKEN_AUTH_ENABLED = "rest.x-token-auth-enabled";
+  public static final boolean X_TOKEN_AUTH_ENABLED_DEFAULT = false;
+  public static final String X_TOKEN_USERNAME = "rest.x-token.username";
+  public static final String X_TOKEN_PASSWORD = "rest.x-token.password";
+  public static final String X_TOKEN_USER_TYPE = "rest.x-token.user-type";
+  public static final String X_TOKEN_USER_TYPE_DEFAULT = "human";
+  public static final String X_TOKEN_URI = "rest.x-token.uri";
+  public static final String X_TOKEN_REFRESH_BEFORE_MS = "rest.x-token.refresh-before-ms";
+  public static final long X_TOKEN_REFRESH_BEFORE_MS_DEFAULT = 60_000L;
+
   public static final String SIGV4_DELEGATE_AUTH_TYPE = "rest.auth.sigv4.delegate-auth-type";
   public static final String SIGV4_DELEGATE_AUTH_TYPE_DEFAULT = AUTH_TYPE_OAUTH2;
 }

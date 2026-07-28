@@ -37,6 +37,18 @@ public class AuthManagers {
   private AuthManagers() {}
 
   public static AuthManager loadAuthManager(String name, Map<String, String> properties) {
+    if (PropertyUtil.propertyAsBoolean(
+        properties,
+        AuthProperties.X_TOKEN_AUTH_ENABLED,
+        AuthProperties.X_TOKEN_AUTH_ENABLED_DEFAULT)) {
+      Preconditions.checkArgument(
+          !properties.containsKey(AuthProperties.AUTH_TYPE),
+          "Cannot set %s when %s is enabled",
+          AuthProperties.AUTH_TYPE,
+          AuthProperties.X_TOKEN_AUTH_ENABLED);
+      return new XTokenAuthManager(name);
+    }
+
     if (properties.containsKey(SIGV4_ENABLED_LEGACY)) {
       LOG.warn(
           "The property {} is deprecated and will be removed in a future release. "

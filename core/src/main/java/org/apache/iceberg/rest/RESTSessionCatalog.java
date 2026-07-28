@@ -244,7 +244,12 @@ public class RESTSessionCatalog extends BaseViewSessionCatalog
     this.client = clientBuilder.apply(mergedProps);
     this.closeables.addCloseable(this.client);
 
-    this.paths = ResourcePaths.forCatalogProperties(mergedProps);
+    boolean catalogPrefixEnabled =
+        PropertyUtil.propertyAsBoolean(
+            props,
+            RESTCatalogProperties.CATALOG_NAMESPACE_PREFIX_ENABLED,
+            RESTCatalogProperties.CATALOG_NAMESPACE_PREFIX_ENABLED_DEFAULT);
+    this.paths = ResourcePaths.forCatalogProperties(mergedProps, name, catalogPrefixEnabled);
 
     this.catalogAuth = authManager.catalogSession(client, mergedProps);
     this.closeables.addCloseable(this.catalogAuth);
