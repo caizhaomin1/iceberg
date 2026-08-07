@@ -236,6 +236,10 @@ project(":iceberg-spark:iceberg-spark-runtime-${sparkMajorVersion}_${scalaVersio
 
   dependencies {
     api project(':iceberg-api')
+    // Package the DME extension into the shaded runtime so its Jackson references are relocated
+    // together with Iceberg's REST implementation. A separate unshaded extension JAR is not
+    // binary-compatible with the Spark runtime JAR.
+    implementation project(':dme-spark')
     implementation project(":iceberg-spark:iceberg-spark-${sparkMajorVersion}_${scalaVersion}")
     implementation project(":iceberg-spark:iceberg-spark-extensions-${sparkMajorVersion}_${scalaVersion}")
     implementation project(':iceberg-aws')
@@ -334,4 +338,3 @@ project(":iceberg-spark:iceberg-spark-runtime-${sparkMajorVersion}_${scalaVersio
     enabled = false
   }
 }
-

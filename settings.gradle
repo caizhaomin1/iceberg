@@ -161,6 +161,7 @@ if (sparkVersions.contains("3.5")) {
   project(":iceberg-spark:spark-extensions-3.5_${scalaVersion}").name = "iceberg-spark-extensions-3.5_${scalaVersion}"
   project(":iceberg-spark:spark-runtime-3.5_${scalaVersion}").projectDir = file('spark/v3.5/spark-runtime')
   project(":iceberg-spark:spark-runtime-3.5_${scalaVersion}").name = "iceberg-spark-runtime-3.5_${scalaVersion}"
+  include 'dme-spark'
 }
 
 if (sparkVersions.contains("4.0")) {
