@@ -79,9 +79,7 @@ public class DmeSparkCatalog extends SparkCatalog {
   @Override
   public Table loadTable(Identifier ident) throws NoSuchTableException {
     Table loaded = super.loadTable(ident);
-    if (loaded instanceof org.apache.iceberg.spark.source.SparkTable) {
-      org.apache.iceberg.spark.source.SparkTable sparkTable =
-          (org.apache.iceberg.spark.source.SparkTable) loaded;
+    if (loaded instanceof org.apache.iceberg.spark.source.SparkTable sparkTable) {
       return new DmeSparkTable(sparkTable.table(), true);
     }
     return loaded;
@@ -92,9 +90,10 @@ public class DmeSparkCatalog extends SparkCatalog {
       Identifier ident, StructType schema, Transform[] transforms, Map<String, String> properties)
       throws TableAlreadyExistsException {
     Table created = super.createTable(ident, schema, transforms, properties);
-    org.apache.iceberg.spark.source.SparkTable sparkTable =
-        (org.apache.iceberg.spark.source.SparkTable) created;
-    return new DmeSparkTable(sparkTable.table(), true);
+    if (created instanceof org.apache.iceberg.spark.source.SparkTable sparkTable) {
+      return new DmeSparkTable(sparkTable.table(), true);
+    }
+    return created;
   }
 
   @Override

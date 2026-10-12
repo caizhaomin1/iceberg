@@ -47,6 +47,7 @@ class TestDmeVectorJsonCodec {
 
     assertThat(field.path("type").asText()).isEqualTo("floatvector");
     assertThat(field.path("dim").asInt()).isEqualTo(1024);
+    assertThat(field.path("required").asBoolean()).isTrue();
     assertThat(field.has("element-id")).isFalse();
     assertThat(root.path("properties").has(DmeVectorJsonCodec.DECLARATIONS_PROPERTY)).isFalse();
   }

@@ -114,7 +114,15 @@ public final class DmeVectorValidator implements Serializable {
       }
 
       for (int index = 0; index < values.numElements(); index += 1) {
-        if (!values.isNullAt(index) && !Float.isFinite(values.getFloat(index))) {
+        if (values.isNullAt(index)) {
+          throw new IllegalArgumentException(
+              "DME_FLOATVECTOR_NULL_ELEMENT: column="
+                  + rule.name
+                  + ", index="
+                  + index
+                  + " does not allow null elements");
+        }
+        if (!Float.isFinite(values.getFloat(index))) {
           throw new IllegalArgumentException(
               "DME_FLOATVECTOR_INVALID_FLOAT: column="
                   + rule.name

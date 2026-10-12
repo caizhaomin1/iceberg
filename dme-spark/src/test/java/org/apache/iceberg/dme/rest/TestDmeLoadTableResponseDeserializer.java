@@ -49,8 +49,8 @@ class TestDmeLoadTableResponseDeserializer {
   void getsActualElementIdFromMetadataLocation() throws Exception {
     Schema schema =
         new Schema(
-            Types.NestedField.optional(
-                22, "vec_col", Types.ListType.ofOptional(107, Types.FloatType.get())));
+            Types.NestedField.required(
+                22, "vec_col", Types.ListType.ofRequired(107, Types.FloatType.get())));
     TableMetadata metadata =
         TableMetadata.newTableMetadata(
             schema,
@@ -63,7 +63,7 @@ class TestDmeLoadTableResponseDeserializer {
     String json =
         "{\"metadata-location\":\""
             + metadataPath
-            + "\",\"metadata\":{\"current-schema-id\":0,\"schemas\":[{\"schema-id\":0,\"fields\":[{\"id\":22,\"name\":\"vec_col\",\"required\":false,\"type\":\"floatvector\",\"dim\":1024}]}]}}";
+            + "\",\"metadata\":{\"current-schema-id\":0,\"schemas\":[{\"schema-id\":0,\"fields\":[{\"id\":22,\"name\":\"vec_col\",\"required\":true,\"type\":\"floatvector\",\"dim\":1024}]}]}}";
     LoadTableResponse response =
         DmeRestObjectMapper.create().readValue(json, LoadTableResponse.class);
     tableUuid = response.tableMetadata().uuid();
@@ -72,6 +72,7 @@ class TestDmeLoadTableResponseDeserializer {
     VectorDescriptor descriptor =
         VectorDescriptorRegistry.get().find(tableUuid, actualFieldId).orElseThrow();
     assertThat(descriptor.dimension()).isEqualTo(1024);
+    assertThat(descriptor.required()).isTrue();
     assertThat(descriptor.elementId())
         .isEqualTo(
             response.tableMetadata().schema().findField("vec_col").type().asListType().elementId());

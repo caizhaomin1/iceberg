@@ -35,7 +35,11 @@ public final class DmeVectorJsonCodec {
   private DmeVectorJsonCodec() {}
 
   static void rewriteCreate(ObjectNode request) {
-    Map<String, Integer> declarations = declarationsFromProperties(request.with("properties"));
+    JsonNode requestProperties = request.get("properties");
+    Map<String, Integer> declarations =
+        requestProperties instanceof ObjectNode properties
+            ? declarationsFromProperties(properties)
+            : Map.of();
     JsonNode schema = request.get("schema");
     if (schema != null) {
       rewriteSchema(schema, declarations);
@@ -59,8 +63,8 @@ public final class DmeVectorJsonCodec {
     JsonNode changes = request.get("table-changes");
     if (changes != null && changes.isArray()) {
       for (JsonNode change : changes) {
-        if (change instanceof ObjectNode) {
-          rewriteUpdate((ObjectNode) change);
+        if (change instanceof ObjectNode update) {
+          rewriteUpdate(update);
         }
       }
     }
@@ -99,10 +103,9 @@ public final class DmeVectorJsonCodec {
       return;
     }
     for (JsonNode candidate : fields) {
-      if (!(candidate instanceof ObjectNode)) {
+      if (!(candidate instanceof ObjectNode field)) {
         continue;
       }
-      ObjectNode field = (ObjectNode) candidate;
       Integer dimension = declarations.get(field.path("name").asText());
       if (dimension == null) {
         continue;
@@ -115,6 +118,8 @@ public final class DmeVectorJsonCodec {
       }
       field.put("type", "floatvector");
       field.put("dim", dimension);
+      // FLOATVECTOR is required by contract, even when Spark's ArrayType field was nullable.
+      field.put("required", true);
     }
   }
 

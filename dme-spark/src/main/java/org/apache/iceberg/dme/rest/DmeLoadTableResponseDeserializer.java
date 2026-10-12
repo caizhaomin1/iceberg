@@ -24,7 +24,6 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 import org.apache.iceberg.Schema;
@@ -74,9 +73,7 @@ public final class DmeLoadTableResponseDeserializer extends JsonDeserializer<Loa
 
     JsonNode config = response.get(CONFIG);
     if (config != null && config.isObject()) {
-      Iterator<Entry<String, JsonNode>> fields = config.fields();
-      while (fields.hasNext()) {
-        Entry<String, JsonNode> entry = fields.next();
+      for (Entry<String, JsonNode> entry : config.properties()) {
         if (entry.getValue().isTextual()) {
           builder.addConfig(entry.getKey(), entry.getValue().asText());
         }
@@ -147,12 +144,11 @@ public final class DmeLoadTableResponseDeserializer extends JsonDeserializer<Loa
       throw new RESTException("DME floatvector field must be list<float>: name=%s", name);
     }
     Types.ListType list = fieldType.asListType();
-    if (list.elementType().typeId() != Type.TypeID.FLOAT || !list.isElementOptional()) {
+    if (list.elementType().typeId() != Type.TypeID.FLOAT || !list.isElementRequired()) {
       throw new RESTException(
-          "DME floatvector physical type must be list<optional float>: name=%s", name);
+          "DME floatvector physical type must be list<required float>: name=%s", name);
     }
 
-    return new VectorDescriptor(
-        physicalField.fieldId(), name, dimension, list.elementId(), !physicalField.isOptional());
+    return new VectorDescriptor(physicalField.fieldId(), name, dimension, list.elementId(), true);
   }
 }

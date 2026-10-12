@@ -59,4 +59,18 @@ class TestDmeVectorValidator {
                         new Object[] {new GenericArrayData(new float[] {1F, Float.NaN, 3F})})))
         .hasMessageContaining("DME_FLOATVECTOR_INVALID_FLOAT");
   }
+
+  @Test
+  void rejectsNullElements() {
+    VectorDescriptorRegistry.get()
+        .replace(TABLE_UUID, List.of(new VectorDescriptor(22, "vec_col", 3, 23, true)));
+    DmeVectorValidator validator = DmeVectorValidator.forTable(SCHEMA, TABLE_UUID);
+
+    assertThatThrownBy(
+            () ->
+                validator.validate(
+                    new GenericInternalRow(
+                        new Object[] {new GenericArrayData(new Object[] {1F, null, 3F})})))
+        .hasMessageContaining("DME_FLOATVECTOR_NULL_ELEMENT");
+  }
 }
